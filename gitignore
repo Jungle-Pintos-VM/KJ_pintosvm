@@ -36,3 +36,4 @@ core
 #synology
 @eaDir/
 **/@eaDir/
+*.@SynoEAStream

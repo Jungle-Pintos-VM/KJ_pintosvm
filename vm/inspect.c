@@ -1,5 +1,7 @@
 /* inspect.c: Testing utility for VM. */
 /* DO NOT MODIFY THIS FILE. */
+// inspect.c: VM 테스트 유틸리티.
+// ※ 이 파일은 수정하지 마세요. ※
 
 #include "threads/interrupt.h"
 #include "threads/thread.h"
@@ -17,6 +19,9 @@ inspect (struct intr_frame *f) {
  *   @RAX - Virtual address to inspect
  * Output:
  *   @RAX - Physical address that mmaped to input. */
+// VM 구성 요소를 테스트하는 도구입니다. int 0x42를 통해 이 함수를 호출합니다.
+// 입력: @RAX - 검사할 가상 주소
+// 출력: @RAX - 입력에 매핑된 실제 주소
 void
 register_inspect_intr (void) {
 	intr_register_int (0x42, 3, INTR_OFF, inspect, "Inspect Virtual Memory");
