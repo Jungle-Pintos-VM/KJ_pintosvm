@@ -3,6 +3,7 @@
 #include "threads/malloc.h"
 #include "vm/vm.h"
 #include "vm/inspect.h"
+#include "hash.h"
 
 /* Initializes the virtual memory subsystem by invoking each subsystem's
  * intialize codes. */
@@ -202,10 +203,23 @@ vm_do_claim_page (struct page *page) {
 	return swap_in (page, frame->kva);
 }
 
+uint64_t haha_func(const struct hash_elem *ha, void *aux UNUSED){
+    const struct page *p = hash_entry(&ha, struct page, hash_elem);
+    return hash_bytes(&p->va, sizeof p->va);
+}
+
+bool hale_func(const struct hash_elem *ha_1,const struct hash_elem *ha_2, void *aux UNUSED){
+    const struct page *page_1 = hash_entry(&ha_1, struct page, hash_elem);
+    const struct page *page_2 = hash_entry(&ha_2, struct page, hash_elem);
+
+    return page_1->va < page_2->va;
+}
+
 /* Initialize new supplemental page table */
 // 새로운 보충 페이지 테이블을 초기화합니다.
 void
 supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
+    hash_init (spt, haha_func, hale_func, NULL);
 }
 
 /* Copy supplemental page table from src to dst */
