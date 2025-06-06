@@ -228,7 +228,14 @@ pml4_get_page (uint64_t *pml4, const void *uaddr) {
  * If WRITABLE is true, the new page is read/write;
  * otherwise it is read-only.
  * Returns true if successful, false if memory allocation
- * failed. */
+ * failed.
+ * 페이지 맵 레벨 4 (PML4) 테이블에 사용자 가상 페이지 UPAGE로부터
+ * 커널 가상 주소 KPAGE로 식별되는 물리 프레임으로의 매핑을 추가합니다.
+ * UPAGE는 아직 매핑되어 있지 않아야 합니다. KPAGE는 아마도 palloc_get_page()를
+ * 사용하여 사용자 풀에서 얻은 페이지여야 합니다.
+ * 만약 WRITABLE이 true이면, 새 페이지는 읽기/쓰기가 가능합니다;
+ * 그렇지 않으면 읽기 전용입니다.
+ * 성공 시 true를 반환하고, 메모리 할당 실패 시 false를 반환합니다.*/
 bool
 pml4_set_page (uint64_t *pml4, void *upage, void *kpage, bool rw) {
 	ASSERT (pg_ofs (upage) == 0);

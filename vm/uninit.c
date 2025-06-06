@@ -23,15 +23,18 @@ static void uninit_destroy (struct page *page);
 
 /* DO NOT MODIFY this struct */
 // ※ 이 구조를 수정하지 마십시오. ※
+// 초기화 안 된 페이지의 행동 매뉴얼
 static const struct page_operations uninit_ops = {
-	.swap_in = uninit_initialize,
-	.swap_out = NULL,
-	.destroy = uninit_destroy,
-	.type = VM_UNINIT,
+	.swap_in = uninit_initialize, // 첫 사용 시 초기화 (전원 켜기)
+	.swap_out = NULL, // 없음(전원 끄기)(아직 안 켜졌으니까 NULL)
+	.destroy = uninit_destroy, // 사용안하고 버릴 때
+	.type = VM_UNINIT, // 미개봉 제품(제품 종류)
 };
 
 /* DO NOT MODIFY this function */
 // ※ 이 구조를 수정하지 마십시오. ※
+// 빈 페이지를 설정하는 함수, 아직 초기화되지 않은 페이지의 정보를 세팅함.
+// 나중에 페이지 폴트가 발생하면 이 정보들을 사용해서 실제 페이지를 만듬.
 void
 uninit_new (struct page *page, void *va, vm_initializer *init,
 		enum vm_type type, void *aux,

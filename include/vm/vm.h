@@ -54,6 +54,7 @@ struct page {
 	/* Your implementation 여러분의 구현 부분(여기에 필요한 추가 멤버들을 정의합니다)*/
     //이것도 구현되어 있음 hash.h의 46번줄, hash_elem 내부에 struct list_elem이 정의되어있고 링크드 리스트 형태로 prev, next가 있음.
     struct hash_elem hash_elem;
+    bool writable;
     //이걸 통해서 pintos 해시 테이블 라이브러리가 제공하는 함수들을 통해 해시 테이블에 추가되거나 검색될 수 있는 해시 가능한 항목이 되는 것.
     //struct page 객체들을 해시 테이블에서 관리할 수 있도록 하기 위함.
 
@@ -71,10 +72,18 @@ struct page {
 	};
 };
 
-/* The representation of "frame" */
+/* The representation of "frame" frame의 표현*/
 struct frame {
-	void *kva;
-	struct page *page;
+	void *kva; //커널 가상 주소
+	struct page *page; // 이 프레임을 사용 중인 페이지 구조체 포인터
+};
+
+/* Lazy loading을 위한 정보 구조체 */
+struct lazy_load_info {
+    struct file *file;
+    off_t offset;
+    size_t read_bytes;
+    size_t zero_bytes;
 };
 
 /* The function table for page operations.
