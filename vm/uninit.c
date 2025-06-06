@@ -59,8 +59,24 @@ uninit_initialize (struct page *page, void *kva) {
 
 	/* Fetch first, page_initialize may overwrite the values */
 	// Fetch를 먼저하세요. page_initialize가 값을 덮어쓸 수 있습니다.
+	// 필요한 값 먼저 복사
 	vm_initializer *init = uninit->init;
 	void *aux = uninit->aux;
+
+	// // 타입에 맞게 페이지 초기화
+	// if (!uninit -> page_initializer(page, uninit->type, kva))
+	// 	return false;
+
+	// // 사용자 정의 초기화 함수가 있다면 호출
+	// if (init != NULL) {
+	// 	if (!init(page, aux)) {
+	// 		if (page -> frame != NULL) {
+	// 			palloc_free_page(page -> frame -> kva);  // 오류 발생시 페이지 해제
+	// 			}
+	// 			return false;
+	// 	}
+	// }
+	// return true;
 
 	/* TODO: You may need to fix this function. */
 	// 이 기능을 수정해야 할 수도 있습니다.
@@ -83,4 +99,5 @@ uninit_destroy (struct page *page) {
 	/* TODO: Fill this function.
 	 * TODO: If you don't have anything to do, just return. */
 	// 할 것이 없으면 그냥 작성 안해도됩니다.
+	free(page->uninit.aux);
 }
