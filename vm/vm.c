@@ -221,8 +221,6 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 	/* valid address인지 확인 */
 	page = spt_find_page(spt, addr);
 	if(page == NULL) {
-		
-
 		return false;
 	}
 	
@@ -299,10 +297,62 @@ supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
 
 /* Copy supplemental page table from src to dst */
 // src에서 dst로 보충 페이지 테이블 복사합니다.
+// 부모 프로세스가 자식에 상속할 떄 사용. 이 함수의 결과로 자식은 부모의 주소를 완벽히 복사한다.
+// src는 부모의 주소 공간, dst는 자식의 주소 공간이다.
+// src와 dst는 지칭하는 대명사와 같다. 결론적으로 src에는 현재 스레드의 spt가 들어갈것이다.
 bool
 supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
 		struct supplemental_page_table *src UNUSED) {
 		
+		// src의 해시 테이블 순회 준비 
+		struct hash_iterator i;
+		hash_first(&i, &src -> spt_hash);  // spt가 해쉬에 있음. first로 첫번째 버킷 지정
+
+		// 모든 page를 하나씩 순회(모든 버킷)
+		while (hash_next(&i)) {
+			struct page *src_page = hash_entry(hash_cur(&i), struct page, hash_elem);
+
+			// 공통 메타데이터 추출
+			void *va = src_page -> va;
+			enum vm_type type = page_get_type(src_page);  // 부모 실제 타입 추출
+			bool writable = src_page -> writable;
+
+			// unint 타입인지 확인
+			if (type == VM_UNINIT) {
+
+				// init 함수와 aux 복사 (지연로딩)
+				struct uninit_page *uninit = &src_page -> uninit;
+				vm_initializer *init = uninit -> init;
+				void *aux = uninit -> aux;
+
+				// dst에 등록
+				vm_alloc_page_with_initializer(type, va, writable, init, aux);
+			}
+
+			// 초기화된 페이지라면
+			else {
+				// dst에도 동일한 페이지를 생성한다.
+				vm_alloc_page_with_initializer(type, va, writable, NULL, NULL);
+
+				// dst 페이지 가져와서 claim 한다.
+				struct page *dst_page = spt_find_page(dst, va);
+				vm_claim_page(va);
+
+				// 실제 프레임 데이터를 복사
+				memcpy(dst_page -> frame -> kva, src_page -> frame -> kva, PGSIZE);  // 목적지, 출발지, 사이즈 순이다.
+			}
+
+			// 기타 속성을 복사
+			if (src_page -> is_stack) 
+				spt_find_page(dst, va) -> is_stack = true;
+		}
+		return true;
+}
+
+// 타입에 맞게 삭제해주는 함수.
+void page_destroy (struct hash_elem *e, void *aux) {
+	struct page *src_page = hash_entry(e, struct page, hash_elem);
+	vm_dealloc_page(src_page);
 }
 
 /* Free the resource hold by the supplemental page table */
@@ -312,4 +362,6 @@ supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED) {
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
 	// 스레드가 보유한 supplemental_page_table을 모두 파괴하고 수정된 내용을 모두 저장소에 다시 쓰게 구현하세요.
+	hash_clear(&spt -> spt_hash, page_destroy);  // 그 안에 있는 페이지들 해제(page_destroy), 해시들도 해제, 
+	// hash_destroy(&spt -> spt_hash, page_destroy);  // hash_destory로 하면 문제가 생긴다. 아마 process_cleanup 두번하는 문제도 있고, 다양하다.
 }
