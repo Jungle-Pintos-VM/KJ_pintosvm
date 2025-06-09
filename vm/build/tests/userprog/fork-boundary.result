@@ -1,0 +1,22 @@
+FAIL
+Kernel panic in run: PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x800421871a 0x800421d78d 0x80042095ea 0x8004209a08 0x8004218ecc 0x800420c5d5 0x8004222a1c 0x80042224c5 0x800422286e 0x800421ace8 0x800422289a 0x800421c8d1 0x800421c89f 0x8004207296 0x800421e593 0x800421db51 0x800421da02 0x400db1
+Translation of call stack:
+0x000000800421871a: debug_panic (lib/kernel/debug.c:32)
+0x000000800421d78d: kill (userprog/exception.c:106)
+0x00000080042095ea: intr_handler (threads/interrupt.c:352)
+0x0000008004209a08: intr_entry (threads/intr-stubs.o:?)
+0x0000008004218ecc: list_push_front (lib/kernel/list.c:197)
+0x000000800420c5d5: free (threads/malloc.c:222)
+0x0000008004222a1c: uninit_destroy (vm/uninit.c:103)
+0x00000080042224c5: vm_dealloc_page (vm/vm.c:258)
+0x000000800422286e: page_destroy (vm/vm.c:398)
+0x000000800421ace8: hash_clear (lib/kernel/hash.c:60)
+0x000000800422289a: supplemental_page_table_kill (vm/vm.c:410)
+0x000000800421c8d1: process_cleanup (userprog/process.c:430)
+0x000000800421c89f: process_exit (userprog/process.c:415)
+0x0000008004207296: thread_exit (threads/thread.c:374)
+0x000000800421e593: sys_write (userprog/syscall.c:369)
+0x000000800421db51: syscall_handler (userprog/syscall.c:91)
+0x000000800421da02: no_sti (userprog/syscall-entry.o:?)
+0x0000000000400db1: (unknown)

@@ -1,0 +1,54 @@
+Kernel command line: -q -f put exec-read put sample.txt put child-read run exec-read
+0 ~ 9fc00 1
+100000 ~ 13e0000 1
+Pintos booting with: 
+	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
+	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
+Calibrating timer...  65,433,600 loops/s.
+hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
+hd1:0: detected 229 sector (114 kB) disk, model "QEMU HARDDISK", serial "QM00003"
+hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
+Formatting file system...done.
+Boot complete.
+Putting 'exec-read' into the file system...
+Putting 'sample.txt' into the file system...
+Putting 'child-read' into the file system...
+Executing 'exec-read':
+(exec-read) begin
+(exec-read) open "sample.txt"
+(exec-read) read "sample.txt" first 20 bytes
+(child-read) begin
+(child-read) open "sample.txt"
+(child-read) read "sample.txt" first 20 bytes
+(child-read) read "sample.txt" remainders
+(child-read) Child success
+(child-read) end
+child-read: exit(0)
+Page fault at 0x606000: not present error writing page in kernel context.
+Interrupt 0x0e (#PF Page-Fault Exception) at rip=80042176c3
+ cr2=0000000000606000 error=               2
+rax 0000000000606000 rbx 0000000000000161 rcx 0000000000606001 rdx 0000000000000073
+rsp 0000008004246d30 rbp 0000008004246d60 rsi 000000800425102c rdi 0000000000605f59
+rip 00000080042176c3 r8 0000000000000000  r9 0000000000000000 r10 0000000000000000
+r11 0000000000000206 r12 000000800421dac3 r13 0000010424617000 r14 00001f0424600000
+r15 0000800422bd6800 rflags 00000202
+es: 001b ds: 001b cs: 0008 ss: 0010
+Kernel PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x800421871a 0x800421d78d 0x800421d98b 0x80042095ea 0x8004209a08 0x8004221039 0x800421fe98 0x800421e6c9 0x800421de77 0x800421da02 0x40020f 0x40046e 0x400f0f 0Interrupt 0x0d (#GP General Protection Exception) at rip=8004215754
+ cr2=0000000000606000 error=               0
+rax 0000800420bc7900 rbx 0000000000000161 rcx 00000080040b8000 rdx 00000000000003d4
+rsp 0000008004246b30 rbp 0000008004246b40 rsi 0000000000008a0f rdi 0000000000000000
+rip 0000008004215754 r8 0000008004246a48  r9 000000800421bb93 r10 0000000000000000
+r11 0000000000000206 r12 000000800421dac3 r13 0000010424617000 r14 00001f0424600000
+r15 0000800422bd6800 rflags 00000006
+es: 0010 ds: 0010 cs: 0008 ss: 0010
+Kernel PANIC recursion at ../../userprog/exception.c:100 in kill().
+Timer: 109 ticks
+Thread: 43 idle ticks, 47 kernel ticks, 19 user ticks
+hd0:0: 0 reads, 0 writes
+hd0:1: 207 reads, 506 writes
+hd1:0: 229 reads, 0 writes
+hd1:1: 0 reads, 0 writes
+Console: 2725 characters output
+Key

@@ -1,0 +1,48 @@
+Kernel command line: -q -f put fork-boundary run fork-boundary
+0 ~ 9fc00 1
+100000 ~ 13e0000 1
+Pintos booting with: 
+	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
+	ext_mem: 0x100000 ~ 0x13e0000 (Usable: 19,328 kB)
+Calibrating timer...  65,433,600 loops/s.
+hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
+hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
+hd1:0: detected 106 sector (53 kB) disk, model "QEMU HARDDISK", serial "QM00003"
+hd1:1: detected 8,064 sector (3 MB) disk, model "QEMU HARDDISK", serial "QM00004"
+Formatting file system...done.
+Boot complete.
+Putting 'fork-boundary' into the file system...
+Executing 'fork-boundary':
+(fork-boundary) begin
+(fork-boundary) child run
+child-simple: exit(54)
+(fork-boundary) fork
+(fork-boundary) wait
+(fork-boundary) end
+fork-boundary: exit(0)
+Interrupt 0x0d (#GP General Protection Exception) at rip=8004218cce
+ cr2=0000000000605ffa error=               0
+rax cccccccccccccccc rbx 000000004747ff60 rcx 0000000000000040 rdx 000000800424a158
+rsp 0000008004246c40 rbp 0000008004246c50 rsi 000000800424a158 rdi 000000800424a158
+rip 0000008004218cce r8 0000008004246ce8  r9 000000800421bb93 r10 0000000000000000
+r11 0000000000000206 r12 000000800421dac3 r13 0000010424617000 r14 00001f0424600000
+r15 0000800422bd6800 rflags 00000202
+es: 001b ds: 001b cs: 0008 ss: 0010
+Kernel PANIC at ../../userprog/exception.c:100 in kill(): Kernel bug - unexpected interrupt in kernel
+Call stack: 0x800421871a 0x800421d78d 0x80042095ea 0x8004209a08 0x8004218ecc 0x800420c5d5 0x8004222a1c 0x80042224c5 0x800422286e 0x800421ace8 0x800422289a 0x800421c8d1 0x800421c89f 0x8004207296 0x800421e593 0x800421db51 0x800421da02 0x400db1 0Interrupt 0x0d (#GP General Protection Exception) at rip=8004215754
+ cr2=0000000000605ffa error=               0
+rax 0000800420bc7900 rbx 000000004747ff60 rcx 00000080040b8000 rdx 00000000000003d4
+rsp 0000008004246a80 rbp 0000008004246a90 rsi 000000000000830f rdi 0000000000000000
+rip 0000008004215754 r8 0000008004246998  r9 000000800421bb93 r10 0000000000000000
+r11 0000000000000206 r12 000000800421dac3 r13 0000010424617000 r14 00001f0424600000
+r15 0000800422bd6800 rflags 00000006
+es: 0010 ds: 0010 cs: 0008 ss: 0010
+Kernel PANIC recursion at ../../userprog/exception.c:100 in kill().
+Timer: 86 ticks
+Thread: 32 idle ticks, 41 kernel ticks, 13 user ticks
+hd0:0: 0 reads, 0 writes
+hd0:1: 80 reads, 240 writes
+hd1:0: 106 reads, 0 writes
+hd1:1: 0 reads, 0 writes
+Console: 2486 characters output
+Key
