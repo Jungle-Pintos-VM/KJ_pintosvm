@@ -2,11 +2,6 @@
 // file.c: 메모리 백업 파일 객체(mmaped 객체)의 구현입니다.
 
 #include "vm/vm.h"
-#include "include/threads/vaddr.h"
-
-#define PGBITS  12                         /* Number of offset bits. */
-#define PGSIZE  (1 << PGBITS)              /* Bytes in a page. */
-#define ROUND_UP(X, STEP) (((X) + (STEP) - 1) / (STEP) * (STEP)) // mmap에서 사용
 
 static bool file_backed_swap_in (struct page *page, void *kva);
 static bool file_backed_swap_out (struct page *page);
@@ -58,109 +53,15 @@ file_backed_destroy (struct page *page) {
 	struct file_page *file_page UNUSED = &page->file;
 }
 
-struct mmap_file {
-	int mapid;
-	struct file *file;
-	void *addr;
-	size_t length;
-	int writable;
-	struct list_elem elem;
-	off_t ofs;
-	uint32_t read_bytes;
-	uint32_t zero_bytes;
-};
-
-static bool
-lazy_load_mmap (struct page *page, void *aux) {
-	// printf("mmap lazy load\n");
-
-	uint8_t* upage = page->va;
-	uint8_t* kpage = page->frame->kva;
-	
-	struct mmap_file* mmap_file = (struct mmap_file*)aux;
-	struct file* file = mmap_file->file;
-	off_t ofs = mmap_file->ofs;
-	size_t page_read_bytes = mmap_file->read_bytes;
-	size_t page_zero_bytes = mmap_file->zero_bytes;
-
-	ASSERT ((page_read_bytes + page_zero_bytes) % PGSIZE == 0);
-	ASSERT (pg_ofs (upage) == 0);
-	ASSERT (ofs % PGSIZE == 0);
-
-	/* Do calculate how to fill this page.
-		* We will read PAGE_READ_BYTES bytes from FILE
-		* and zero the final PAGE_ZERO_BYTES bytes. */
-
-	/* Load this page. */
-	if (file_read_at (file, kpage, page_read_bytes, ofs) != (int) page_read_bytes) {
-		return false;
-	}
-	memset (kpage + page_read_bytes, 0, page_zero_bytes);
-
-	file_close(file);
-	free(aux);
-	return true;
-}
-
 /* Do the mmap */
 // mmap 관련 기능입니다.
 void *
 do_mmap (void *addr, size_t length, int writable,
 		struct file *file, off_t offset) {
-			off_t file_ofs;
-			
-	addr = pg_round_down(addr);
-	off_t total_len = file_length(file);
-	uint32_t read_bytes = total_len - offset;
-	uint32_t zero_bytes = ROUND_UP(read_bytes, PGSIZE) - read_bytes;
-	off_t ofs = offset;
-	uint8_t * upage = addr;
-
-	while (read_bytes > 0 || zero_bytes > 0){
-	size_t page_read_bytes = read_bytes < PGSIZE ? read_bytes : PGSIZE;
-	size_t page_zero_bytes = PGSIZE - page_read_bytes;
-	
-	struct mmap_file *mmap_file = malloc(sizeof(struct mmap_file));
-	mmap_file -> addr = addr;
-	// mmap_file -> length = length;
-	mmap_file -> writable = writable;
-	mmap_file -> file = file;
-	mmap_file -> ofs = ofs;
-
-	if(!vm_alloc_page_with_initializer(VM_ANON, addr, writable, lazy_load_mmap, mmap_file))
-		return false;
-	// vm_alloc_page()
-
-	read_bytes -= page_read_bytes;
-	zero_bytes -= page_zero_bytes;
-	upage += PGSIZE;
-	/* file_read를 하지 않기 때문에 수동으로 ofs을 이동시켜줘야 한다. */
-	ofs += page_read_bytes;
-	}
-	return addr;
 }
 
 /* Do the munmap */
 // munamp 관련 기능입니다.
 void
 do_munmap (void *addr) {
-	addr = pg_round_down(addr);
-	struct page* munmap_page = spt_find_page(&thread_current()->spt, addr);
-	if (munmap_page == NULL) {
-		return;
-	}
-
-	struct list* mapped_pages = munmap_page->mmaped_list;
-	if(mapped_pages == NULL) {
-		return;
-	}
-
-	struct list_elem* mapped_page_elem;
-	struct page* tmp_page;
-	while (!list_empty(mapped_pages)) {
-		mapped_page_elem = list_pop_front(mapped_pages);
-		tmp_page = list_entry(mapped_page_elem, struct page, mmaped_elem);
-		vm_dealloc_page(tmp_page);
-	}
-	free(mapped_pages);
 }

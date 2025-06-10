@@ -24,33 +24,19 @@ static const struct page_operations anon_ops = {
 // 익명 페이지에 대한 데이터 초기화를 수행합니다.
 void
 vm_anon_init (void) {
-	// /* TODO: Set up the swap_disk. */
-	// swap_disk를 설정하세요.
+	/* TODO: Set up the swap_disk. */
+	// swao_disk를 설정하세요.
 	swap_disk = NULL;
 }
-// bool vm_anon_init(struct page *page, enum vm_type type, void *kva) {
-//     // 1. page_operations 설정
-//     page->operations = &anon_ops;
-
-//     // 2. anon_page 필드 초기화
-//     struct anon_page *anon_page = &page->anon;
-//     anon_page->swap_slot = -1;  // 아직 스왑되지 않았음을 나타냄
-
-//     return true;  // 성공적으로 초기화되었음을 알림
-// }
 
 /* Initialize the file mapping */
 // 파일 매핑을 초기화합니다.
 bool
 anon_initializer (struct page *page, enum vm_type type, void *kva) {
 	/* Set up the handler */
-	page -> operations = &anon_ops;  // 페이지가 anon으로 동작
-	// page -> anon.aux = aux;
+	page->operations = &anon_ops;
 
 	struct anon_page *anon_page = &page->anon;
-
-	// anon_page->swap_slot = -1;  // 아직 스왑되지 않았음을 나타냄
-	// return true;
 }
 
 /* Swap in the page by read contents from the swap disk. */
