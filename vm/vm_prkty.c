@@ -212,7 +212,7 @@ vm_stack_growth (void *addr UNUSED) {
 static bool
 vm_handle_wp (struct page *page UNUSED) {
 }
-
+//#define MAX_STACK_LIMIT (1 << 20)  // 1MB
 /* Return true on success */
 // 성공 시 true를 반환합니다.
 bool
@@ -220,6 +220,9 @@ vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		bool user UNUSED, bool write UNUSED, bool not_present UNUSED) {
 	struct supplemental_page_table *spt UNUSED = &thread_current ()->spt;
 	struct page *page = spt_find_page(spt, addr);  /* valid address인지 확인 */
+
+	void *user_rsp = thread_current()->user_rsp;  // 시스템 콜 중이라도 유저 %rsp
+	// void *user_rsp = user ? thread_current()->user_rsp : f->rsp;
 
 	void *va = pg_round_down(addr);  // 주소를 정렬에 맞춰준다.
 	/* TODO: Validate the fault */
