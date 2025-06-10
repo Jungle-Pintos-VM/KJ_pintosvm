@@ -1,8 +1,10 @@
 /* anon.c: Implementation of page for non-disk image (a.k.a. anonymous page). */
 // anon.c: 디스크가 아닌 이미지(익명 페이지라고도 함)에 대한 페이지 구현을 담당합니다.
 
+#include "threads/malloc.h"
 #include "vm/vm.h"
 #include "devices/disk.h"
+
 
 /* DO NOT MODIFY BELOW LINE */
 // ※ 해당 라인은 수정하지마세요. ※
@@ -37,6 +39,8 @@ anon_initializer (struct page *page, enum vm_type type, void *kva) {
 	page->operations = &anon_ops;
 
 	struct anon_page *anon_page = &page->anon;
+
+    return true;
 }
 
 /* Swap in the page by read contents from the swap disk. */
@@ -56,5 +60,12 @@ anon_swap_out (struct page *page) {
 // 익명 페이지를 삭제합니다. 호출자가 PAGE를 해제합니다.
 static void
 anon_destroy (struct page *page) {
-	struct anon_page *anon_page = &page->anon;
+//	struct anon_page *anon_page = &page->anon;
+//    if(page->frame != NULL){
+//        // 1. vm_get_frame에서 사용한 palloc_get_page로 할당한 물리 페이지를 해제함
+//        palloc_free_page(page->frame->kva);
+//        // 2. vm_get_frame에서 calloc으로 동적 메모리 할당한 struct frame 관리 구조체 자체를 해제
+//        free(page->frame);
+//    }
+// 이 함수를 활성화 시키면 기존에 통과되던 테스트가 다 실패하게 됨.
 }

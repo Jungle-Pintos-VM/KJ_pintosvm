@@ -130,12 +130,9 @@ file_get_inode(struct file *file)
  * Advances FILE's position by the number of bytes read. */
 off_t file_read(struct file *file, void *buffer, off_t size)
 {
-	lock_acquire(&filesys_lock);
-
 	/* 출력디스크립터 일때 */
 	if (file == &console_out)
 	{
-		lock_release(&filesys_lock);
 		return -1;
 	}
 	/* 표준 입력 일때 */
@@ -144,14 +141,12 @@ off_t file_read(struct file *file, void *buffer, off_t size)
 		/* stdin 역할 */
 		for (off_t i = 0; i < size; i++)
 			((char *)buffer)[i] = input_getc();
-		lock_release(&filesys_lock);
 
 		return size;
 	}
 
 	off_t bytes_read = inode_read_at(file->inode, buffer, size, file->pos);
 	file->pos += bytes_read;
-	lock_release(&filesys_lock);
 
 	return bytes_read;
 }
