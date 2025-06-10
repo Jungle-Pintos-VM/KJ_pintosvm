@@ -1,6 +1,7 @@
 /* vm.c: 가상 메모리 객체를 위한 일반 인터페이스. */
 
 #include <stdio.h>
+#include <string.h>
 #include "threads/malloc.h"
 #include "vm/vm.h"
 #include "vm/inspect.h"
@@ -202,6 +203,12 @@ vm_get_frame (void) {
 // 스택을 키웁니다.
 static void
 vm_stack_growth (void *addr UNUSED) {
+    if(vm_alloc_page(VM_ANON | VM_MARKER_0, addr, true)){
+        if (vm_claim_page(addr)){
+            return;
+        }
+    }
+    PANIC("나 진짜 너무 많은 일이 잇엇어 힘들다진짜");
 }
 
 /* Handle the fault on write_protected page */
@@ -215,34 +222,41 @@ vm_handle_wp (struct page *page UNUSED) {
 bool
 vm_try_handle_fault (struct intr_frame *f UNUSED, void *addr UNUSED,
 		bool user UNUSED, bool write UNUSED, bool not_present UNUSED) {
-	struct supplemental_page_table *spt UNUSED = &thread_current ()->spt;
-	struct page *page = NULL;
-	/* TODO: Validate the fault */
-	// 오류를 검증하세요
+    struct supplemental_page_table *spt = &thread_current()->spt;
+    struct page *page = NULL;
 
     // 주소 유효성 검사
-    if(is_kernel_vaddr(addr) || addr == NULL){
+    if (is_kernel_vaddr(addr) || addr == NULL) {
         thread_exit();
     }
-	/* TODO: Your code goes here */
-	// 코드를 여기에 적으세요
 
-    // SPT에서 페이지 조회
     page = spt_find_page(spt, pg_round_down(addr));
 
-    if(not_present) {
-        // 페이지가 없는 경우
-        if (page == NULL) {
-            return false;
-        }
+    if (page == NULL) {
+        // user 플래그를 사용한 더 안전하고 간단한 로직
+        if (user) { // 사용자 모드에서 발생한 폴트일 때만 스택 성장 검사
+            void *rsp = f->rsp;
+            bool is_stack_growth = (addr >= rsp - 8) &&
+                                   (addr < (void *)USER_STACK) &&
+                                   (addr >= (void *)USER_STACK - (1 << 20));
 
-        if (write && !page->writable) {
-            thread_exit();
+            if (is_stack_growth) {
+                // 스택 성장 처리
+                vm_stack_growth(pg_round_down(addr));
+                // 성공적으로 처리했으니, 다시 페이지를 찾아 claim 시도
+                return vm_do_claim_page(spt_find_page(spt, pg_round_down(addr)));
+            }
         }
-        return vm_do_claim_page(page);
+        // 사용자 모드 폴트가 아니거나, 스택 성장 조건이 아니면 진짜 오류
+        thread_exit();
     }
-    //gy
-    return false;
+
+    // 페이지를 찾았을 때의 처리 로직
+    if (write && !page->writable) {
+        thread_exit();
+    }
+
+    return vm_do_claim_page(page);
 }
 
 /* Free the page.
@@ -323,10 +337,49 @@ supplemental_page_table_init (struct supplemental_page_table *spt UNUSED) {
 
 /* Copy supplemental page table from src to dst */
 // src에서 dst로 보충 페이지 테이블 복사합니다.
+// 자식 프로세스를 만들 때 부모의 spt도 자식에게 복사해줘야 함.
 bool
-supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
-		struct supplemental_page_table *src UNUSED) {
+supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED, struct supplemental_page_table *src UNUSED){
+
+    struct hash_iterator i;
+    hash_first(&i, &src->spt_hash);
+    while(hash_next(&i)){
+        struct page *parent_page = hash_entry(hash_cur(&i), struct page, hash_elem);
+
+        //1. 부모 페이지 타입에 따라 자식 페이지를 할당함.
+        if (parent_page->operations->type == VM_UNINIT){
+            vm_initializer *init = parent_page->uninit.init;
+            void *aux = parent_page->uninit.aux;
+            if(!vm_alloc_page_with_initializer(page_get_type(parent_page), parent_page->va, parent_page->writable,init, aux))
+            {
+                return false;
+            }
+        }else{
+            if(!vm_alloc_page(page_get_type(parent_page), parent_page->va,parent_page->writable)){
+                return false;
+            }
+
+            if (!vm_claim_page(parent_page->va)){
+                return false;
+            }
+
+            //2. 방금 생성된 자식 페이지를 찾아서, 부모의 프레임 내용을 복사합니다.
+            struct page *child_page = spt_find_page(dst, parent_page->va);
+            if(child_page == NULL){
+                return false;
+            }
+            memcpy(child_page->frame->kva, parent_page->frame->kva, PGSIZE);
+        }
+    }
+    return true;
 }
+
+static void
+kill_page(struct hash_elem *e, void *aux UNUSED) {
+    struct page *page = hash_entry(e, struct page, hash_elem);
+    destroy(page); // 페이지 내용물(프레임 등) 자원 해제
+}
+
 
 /* Free the resource hold by the supplemental page table */
 // 보충 페이지 테이블에서 리소스 보류를 해제합니다.
@@ -335,4 +388,6 @@ supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED) {
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
 	// 스레드가 보유한 supplemental_page_table을 모두 파괴하고 수정된 내용을 모두 저장소에 다시 쓰게 구현하세요.
+    hash_clear(&spt->spt_hash, kill_page);
+
 }

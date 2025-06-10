@@ -15,6 +15,7 @@
  * uninit_initialize 함수는 페이지 객체를 초기화하여 페이지를 특정 페이지 객체(anon, file, page_cache)로 변환하고,
  * vm_alloc_page_with_initializer 함수에서 전달된 초기화 콜백을 호출합니다. */
 
+#include "threads/malloc.h"
 #include "vm/vm.h"
 #include "vm/uninit.h"
 
@@ -86,4 +87,8 @@ uninit_destroy (struct page *page) {
 	/* TODO: Fill this function.
 	 * TODO: If you don't have anything to do, just return. */
 	// 할 것이 없으면 그냥 작성 안해도됩니다.
+//    if(uninit->aux){
+//        free(uninit->aux);
+//    }
+// 이 함수를 활성화 하면 일부 실패함
 }

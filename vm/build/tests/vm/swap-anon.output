@@ -4,7 +4,7 @@ Kernel command line: -q -f put swap-anon run swap-anon
 Pintos booting with: 
 	base_mem: 0x0 ~ 0x9fc00 (Usable: 639 kB)
 	ext_mem: 0x100000 ~ 0x9e0000 (Usable: 9,088 kB)
-Calibrating timer...  287,948,800 loops/s.
+Calibrating timer...  314,163,200 loops/s.
 hd0:0: detected 337 sector (168 kB) disk, model "QEMU HARDDISK", serial "QM00001"
 hd0:1: detected 20,160 sector (9 MB) disk, model "QEMU HARDDISK", serial "QM00002"
 hd1:0: detected 104 sector (52 kB) disk, model "QEMU HARDDISK", serial "QM00003"
@@ -17,18 +17,18 @@ Executing 'swap-anon':
 (swap-anon) write sparsely over page 0
 (swap-anon) write sparsely over page 512
 (swap-anon) write sparsely over page 1024
-Kernel PANIC at ../../vm/vm.c:190 in vm_get_frame(): todo
-Call stack: 0x8004218731 0x800422214d 0x8004222365 0x80042222f9 0x800421d87f 0x8004209601 0x8004209a1f 0x400cac 0x400cf5 0Interrupt 0x0d (#GP General Protection Exception) at rip=800421576b
+Kernel PANIC at ../../vm/vm.c:191 in vm_get_frame(): todo
+Call stack: 0x8004218731 0x800422214d 0x800422247a 0x8004222415 0x800421d87f 0x8004209601 0x8004209a1f 0x400cac 0x400cf5 0Interrupt 0x0d (#GP General Protection Exception) at rip=800421576b
  cr2=0000000000abbd60 error=               0
 rax 0000800420bc9000 rbx 000080042391f800 rcx 00000080040b8000 rdx 00000000000003d4
-rsp 0000008004240d80 rbp 0000008004240d90 rsi 000000000000aa0f rdi 0000000000000000
-rip 000000800421576b r8 0000008004240c98  r9 000000800421bbaa r10 0000000000000000
+rsp 0000008004240d70 rbp 0000008004240d80 rsi 000000000000aa0f rdi 0000000000000000
+rip 000000800421576b r8 0000008004240c88  r9 000000800421bbaa r10 0000000000000000
 r11 0000000000000202 r12 00008004240f3000 r13 0000010424016000 r14 00001f0424000000
 r15 0000800422bc0800 rflags 00000006
 es: 0010 ds: 0010 cs: 0008 ss: 0010
 Kernel PANIC recursion at ../../userprog/exception.c:100 in kill().
-Timer: 88 ticks
-Thread: 37 idle ticks, 27 kernel ticks, 24 user ticks
+Timer: 77 ticks
+Thread: 35 idle ticks, 25 kernel ticks, 17 user ticks
 hd0:0: 0 reads, 0 writes
 hd0:1: 80 reads, 236 writes
 hd1:0: 104 reads, 0 writes
