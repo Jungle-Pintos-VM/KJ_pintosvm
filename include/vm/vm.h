@@ -46,6 +46,7 @@ struct page {
 	void *va;              /* Address in terms of user space */
 	struct frame *frame;   /* Back reference for frame */
 	struct hash_elem hash_elem;
+	bool writable;
 	/* Your implementation */
 
 	/* Per-type data are binded into the union.
@@ -64,7 +65,7 @@ struct page {
 struct frame {
 	void *kva;
 	struct page *page;
-	struct list_elem frame_elem; /*frame_table에 들어갈 리스트 엘리먼트*/
+	// struct list_elem frame_elem; /*frame_table에 들어갈 리스트 엘리먼트*/
 };
 
 /* The function table for page operations.
@@ -106,7 +107,7 @@ bool vm_try_handle_fault (struct intr_frame *f, void *addr, bool user,
 
 #define vm_alloc_page(type, upage, writable) \
 	vm_alloc_page_with_initializer ((type), (upage), (writable), NULL, NULL)
-bool vm_alloc_page_with_initializer (enum vm_type type, void *upage_,
+bool vm_alloc_page_with_initializer (enum vm_type type, void *upage,
 		bool writable, vm_initializer *init, void *aux);
 void vm_dealloc_page (struct page *page);
 bool vm_claim_page (void *va);
@@ -114,5 +115,5 @@ static bool vm_do_claim_page (struct page *page);
 enum vm_type page_get_type (struct page *page);
 
 void page_destroy(struct hash_elem *e, void *aux);
-
+uint64_t page_hash(const struct hash_elem *e, void *aux UNUSED);
 #endif  /* VM_VM_H */

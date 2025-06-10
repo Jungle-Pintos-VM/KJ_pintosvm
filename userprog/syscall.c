@@ -290,7 +290,7 @@ void check_user_address(const void *uaddr)
 {
 	if (!uaddr || !is_user_vaddr(uaddr) || pml4_get_page(thread_current()->pml4, uaddr) == NULL)
 	{
-		sys_exit(-1);
+		sys_exit(-1); /*!!!!!page_fault처리로 바꾸어야 함*/
 	}
 }
 
