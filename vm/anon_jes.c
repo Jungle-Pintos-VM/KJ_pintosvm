@@ -62,7 +62,6 @@ anon_initializer (struct page *page, enum vm_type type, void *kva) {
 	/*페이지 연산자 구조체를 익명OPS로 설정*/
 	page->operations = &anon_ops;
 	struct anon_page *anon_page = &page->anon;
-
 	// /*물리 메모리를 0으로 초기화*/
 	// memset(kva, 0 ,PGSIZE);
 
@@ -86,12 +85,5 @@ anon_swap_out (struct page *page) {
 // 익명 페이지를 삭제합니다. 호출자가 PAGE를 해제합니다.
 static void
 anon_destroy (struct page *page) {
-//	struct anon_page *anon_page = &page->anon;
-//    if(page->frame != NULL){
-//        // 1. vm_get_frame에서 사용한 palloc_get_page로 할당한 물리 페이지를 해제함
-//        palloc_free_page(page->frame->kva);
-//        // 2. vm_get_frame에서 calloc으로 동적 메모리 할당한 struct frame 관리 구조체 자체를 해제
-//        free(page->frame);
-//    }
-// 이 함수를 활성화 시키면 기존에 통과되던 테스트가 다 실패하게 됨.
+	struct anon_page *anon_page = &page->anon;
 }

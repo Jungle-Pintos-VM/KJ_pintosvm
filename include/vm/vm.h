@@ -2,6 +2,7 @@
 #define VM_VM_H
 #include <stdbool.h>
 #include "threads/palloc.h"
+#include "lib/kernel/hash.h" /*spt에서 해시 테이블을 사용하기 위함*/
 
 enum vm_type {
 	/* page not initialized 아직 초기화되지 않은 페이지*/
@@ -140,6 +141,9 @@ bool vm_alloc_page_with_initializer (enum vm_type type, void *upage,
 		bool writable, vm_initializer *init, void *aux);
 void vm_dealloc_page (struct page *page);
 bool vm_claim_page (void *va);
+static bool vm_do_claim_page (struct page *page);
 enum vm_type page_get_type (struct page *page);
 
+void page_destroy(struct hash_elem *e, void *aux);
+uint64_t page_hash(const struct hash_elem *e, void *aux UNUSED);
 #endif  /* VM_VM_H */
