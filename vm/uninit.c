@@ -15,6 +15,7 @@
  * uninit_initialize 함수는 페이지 객체를 초기화하여 페이지를 특정 페이지 객체(anon, file, page_cache)로 변환하고,
  * vm_alloc_page_with_initializer 함수에서 전달된 초기화 콜백을 호출합니다. */
 
+#include "threads/malloc.h"
 #include "vm/vm.h"
 #include "vm/uninit.h"
 
@@ -23,15 +24,18 @@ static void uninit_destroy (struct page *page);
 
 /* DO NOT MODIFY this struct */
 // ※ 이 구조를 수정하지 마십시오. ※
+// 초기화 안 된 페이지의 행동 매뉴얼
 static const struct page_operations uninit_ops = {
-	.swap_in = uninit_initialize,
-	.swap_out = NULL,
-	.destroy = uninit_destroy,
-	.type = VM_UNINIT,
+	.swap_in = uninit_initialize, // 첫 사용 시 초기화 (전원 켜기)
+	.swap_out = NULL, // 없음(전원 끄기)(아직 안 켜졌으니까 NULL)
+	.destroy = uninit_destroy, // 사용안하고 버릴 때
+	.type = VM_UNINIT, // 미개봉 제품(제품 종류)
 };
 
 /* DO NOT MODIFY this function */
 // ※ 이 구조를 수정하지 마십시오. ※
+// 빈 페이지를 설정하는 함수, 아직 초기화되지 않은 페이지의 정보를 세팅함.
+// 나중에 페이지 폴트가 발생하면 이 정보들을 사용해서 실제 페이지를 만듬.
 void
 uninit_new (struct page *page, void *va, vm_initializer *init,
 		enum vm_type type, void *aux,
@@ -59,24 +63,8 @@ uninit_initialize (struct page *page, void *kva) {
 
 	/* Fetch first, page_initialize may overwrite the values */
 	// Fetch를 먼저하세요. page_initialize가 값을 덮어쓸 수 있습니다.
-	// 필요한 값 먼저 복사
 	vm_initializer *init = uninit->init;
 	void *aux = uninit->aux;
-
-	// // 타입에 맞게 페이지 초기화
-	// if (!uninit -> page_initializer(page, uninit->type, kva))
-	// 	return false;
-
-	// // 사용자 정의 초기화 함수가 있다면 호출
-	// if (init != NULL) {
-	// 	if (!init(page, aux)) {
-	// 		if (page -> frame != NULL) {
-	// 			palloc_free_page(page -> frame -> kva);  // 오류 발생시 페이지 해제
-	// 			}
-	// 			return false;
-	// 	}
-	// }
-	// return true;
 
 	/* TODO: You may need to fix this function. */
 	// 이 기능을 수정해야 할 수도 있습니다.
@@ -99,5 +87,8 @@ uninit_destroy (struct page *page) {
 	/* TODO: Fill this function.
 	 * TODO: If you don't have anything to do, just return. */
 	// 할 것이 없으면 그냥 작성 안해도됩니다.
-	free(page->uninit.aux);
+//    if(uninit->aux){
+//        free(uninit->aux);
+//    }
+// 이 함수를 활성화 하면 일부 실패함
 }

@@ -67,8 +67,8 @@ int main (void) NO_RETURN;
 /* Pintos main program. */
 int
 main (void) {
-	uint64_t mem_end;
-	char **argv;
+	uint64_t mem_end; //실제 메모리(RAM)의 끝 바로 다음 주소를 선언
+	char **argv; // 인자 배열
 
 	/* Clear BSS and get machine's RAM size. */
 	bss_init ();
@@ -82,10 +82,10 @@ main (void) {
 	thread_init ();
 	console_init ();
 
-	/* Initialize memory system. */
-	mem_end = palloc_init ();
-	malloc_init ();
-	paging_init (mem_end);
+	/* Initialize memory system. 메모리 시스템 초기화 */
+	mem_end = palloc_init (); // palloc_init 내부에 resolve_area_info를 통해 실제 메모리 크기를 알아낸 후 그 끝을 반환해서 저장
+	malloc_init (); // 커널의 malloc을 초기화함.
+	paging_init (mem_end); // 페이지 초기화
 
 #ifdef USERPROG
 	tss_init ();
