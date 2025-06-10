@@ -12,7 +12,7 @@
 #include "userprog/process.h"
 #include <string.h>
 
-//aaaaa
+//aaaaabbbcccc
 #define VM_TYPE_COUNT 3
 #define STACK_HEURISTIC 32
 #define MAX_STACK_SIZE (8*1024*1024)
