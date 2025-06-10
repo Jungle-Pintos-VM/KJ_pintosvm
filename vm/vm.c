@@ -389,70 +389,7 @@ supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED) {
 	/* TODO: Destroy all the supplemental_page_table hold by thread and
 	 * TODO: writeback all the modified contents to the storage. */
 	// 스레드가 보유한 supplemental_page_table을 모두 파괴하고 수정된 내용을 모두 저장소에 다시 쓰게 구현하세요.
-<<<<<<< HEAD
-}
-
-
-
-
-/*해시 테이블 초기화*/
-/*void
-spt_init(struct supplemental_page_table *spt) {
-	hash_init(&spt->spt_hash, page_hash, page_less,NULL);
-}
-*/
-/*SPT에 페이지 삽입*/
-/*bool
-spt_insert_page(struct supplemental_page_table *spt, struct page *p) {
-	//hash_insert()자체ㅏ 같은 키(같은 p->va)가 있으면 삽입 실패로 처리해주기 때문에 별도의 덮어쓰기 방지 코드 필요 없음
-	return hash_insert(&spt->spt_hash, &p->hash_elem) == NULL;
-}*/
-
-/*SPT에서 페이지 탐색*/
-struct page
-*spt_find_page(struct supplemental_page_table *spt, void *va) {
-	void *rounded_va = pg_round_down(va);
-	struct page temp;
-	temp.va = rounded_va;
-	struct hash_elem *e = hash_find(&spt->spt_hash, &temp.hash_elem);
-	if (e == NULL) {
-		return NULL;
-	}
-	else {
-		struct page *p = hash_entry(e, struct page, hash_elem);
-		return p;
-	}
-}
-
-
-
-
-
-
-void
-page_destroy(struct hash_elem *e, void *aux UNUSED) {
-	struct page *p = hash_entry(e, struct page, hash_elem);
-
-	if (p == NULL)
-		return;
-
-	if (p->frame != NULL) {
-		palloc_free_page(p->frame->kva);
-		free(p->frame);
-	}
-
-	if (p->operations && p->operations->destroy) {
-		(p->operations->destroy)(p);
-
-	}
-
-	free(p);
-
-}
-
-
-/*SPT 최종 정리 함수*/
-void
-spt_kill(struct supplemental_page_table *spt) {
-	hash_destroy(&spt->spt_hash, page_destroy);
+	hash_clear(&spt -> spt_hash, page_destroy);  // 그 안에 있는 페이지들 해제(page_destroy), 해시들도 해제, 
+	
+	// hash_destroy(&spt -> spt_hash, page_destroy);  // hash_destory로 하면 문제가 생긴다. 아마 process_cleanup 두번하는 문제도 있고, 다양하다.
 }
