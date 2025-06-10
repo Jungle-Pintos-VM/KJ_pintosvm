@@ -407,4 +407,4 @@ supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED) {
 	hash_clear(&spt -> spt_hash, page_destroy);  // 그 안에 있는 페이지들 해제(page_destroy), 해시들도 해제, 
 	
 	// hash_destroy(&spt -> spt_hash, page_destroy);  // hash_destory로 하면 문제가 생긴다. 아마 process_cleanup 두번하는 문제도 있고, 다양하다.
-}
+}//
