@@ -2,6 +2,7 @@
 #define VM_VM_H
 #include <stdbool.h>
 #include "threads/palloc.h"
+#include "lib/kernel/hash.h" /*spt에서 해시 테이블을 사용하기 위함*/
 
 enum vm_type {
 	/* page not initialized */
@@ -44,7 +45,7 @@ struct page {
 	const struct page_operations *operations;
 	void *va;              /* Address in terms of user space */
 	struct frame *frame;   /* Back reference for frame */
-
+	struct hash_elem hash_elem;
 	/* Your implementation */
 
 	/* Per-type data are binded into the union.
@@ -63,6 +64,7 @@ struct page {
 struct frame {
 	void *kva;
 	struct page *page;
+	struct list_elem frame_elem; /*frame_table에 들어갈 리스트 엘리먼트*/
 };
 
 /* The function table for page operations.
@@ -85,6 +87,7 @@ struct page_operations {
  * We don't want to force you to obey any specific design for this struct.
  * All designs up to you for this. */
 struct supplemental_page_table {
+	struct hash spt_hash; //페이지들을 관리할 해시 테이블
 };
 
 #include "threads/thread.h"
@@ -103,10 +106,13 @@ bool vm_try_handle_fault (struct intr_frame *f, void *addr, bool user,
 
 #define vm_alloc_page(type, upage, writable) \
 	vm_alloc_page_with_initializer ((type), (upage), (writable), NULL, NULL)
-bool vm_alloc_page_with_initializer (enum vm_type type, void *upage,
+bool vm_alloc_page_with_initializer (enum vm_type type, void *upage_,
 		bool writable, vm_initializer *init, void *aux);
 void vm_dealloc_page (struct page *page);
 bool vm_claim_page (void *va);
+static bool vm_do_claim_page (struct page *page);
 enum vm_type page_get_type (struct page *page);
+
+void page_destroy(struct hash_elem *e, void *aux);
 
 #endif  /* VM_VM_H */
