@@ -386,8 +386,10 @@ supplemental_page_table_copy (struct supplemental_page_table *dst UNUSED,
 // 보충 페이지 테이블에서 리소스 보류를 해제합니다.
 void
 supplemental_page_table_kill (struct supplemental_page_table *spt UNUSED) {
-	/sakdhjfoasdf
-	sdf;lokihsadolfj
-	sdlkfhsao;ldjf
-	sdlfihasdf
+	/* TODO: Destroy all the supplemental_page_table hold by thread and
+	 * TODO: writeback all the modified contents to the storage. */
+	// 스레드가 보유한 supplemental_page_table을 모두 파괴하고 수정된 내용을 모두 저장소에 다시 쓰게 구현하세요.
+	hash_clear(&spt -> spt_hash, page_destroy);  // 그 안에 있는 페이지들 해제(page_destroy), 해시들도 해제, 
 	
+	// hash_destroy(&spt -> spt_hash, page_destroy);  // hash_destory로 하면 문제가 생긴다. 아마 process_cleanup 두번하는 문제도 있고, 다양하다.
+}
