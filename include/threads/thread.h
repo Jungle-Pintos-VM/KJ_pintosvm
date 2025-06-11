@@ -113,6 +113,10 @@ struct thread
 #ifdef VM
 	/* Table for whole virtual memory owned by thread. */
 	struct supplemental_page_table spt;
+	void *stack_bottom; // 스택이 허용하는 최하단 주소Add commentMore actions
+	//void *rsp_stack;	// 유저 모드에서 커널로 진입할 때마다 저장해 두는 RSP
+	void *user_rsp;     // 유저 스택 포인터를 저장
+	struct list mmap_list;
 #endif
 
 	/* Owned by thread.c. */

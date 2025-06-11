@@ -74,6 +74,9 @@ void syscall_handler(struct intr_frame *f UNUSED)
 	// printf("system call!\n");
 	// thread_exit();
 
+	/* Project3 VM : stack growth를 위한 추가 */
+	thread_current() -> user_rsp = f->rsp;
+
 	int syscall_num = (int)f->R.rax;
 
 	switch (syscall_num)
@@ -288,10 +291,21 @@ void syscall_handler(struct intr_frame *f UNUSED)
 */
 void check_user_address(const void *uaddr)
 {
+#ifndef VM
+	// project 2
 	if (!uaddr || !is_user_vaddr(uaddr) || pml4_get_page(thread_current()->pml4, uaddr) == NULL)
 	{
-		sys_exit(-1); /*!!!!!page_fault처리로 바꾸어야 함*/
+		sys_exit(-1);
 	}
+#else
+	// project 3
+	// spt 매핑 여부 검사 : spt_find_page() == NULL -> exit()
+	// 스택 그로우시 검사 조건 수정 필요(익명페이지 때문에 spt가 없을수도 있음)
+	if (!uaddr || !is_user_vaddr(uaddr))
+	{
+		sys_exit(-1);
+	}
+#endif
 }
 
 /*	check_user_buffer(char *buffer, size_t size){}
