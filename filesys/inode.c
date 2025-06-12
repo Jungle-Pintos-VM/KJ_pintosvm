@@ -154,9 +154,9 @@ inode_reopen(struct inode *inode)
 {
 	if (inode != NULL)
 	{
-		lock_acquire(&inode->inode_lock);
+		//lock_acquire(&inode->inode_lock);
 		inode->open_cnt++;
-		lock_release(&inode->inode_lock);
+		//lock_release(&inode->inode_lock);
 	}
 	return inode;
 }
@@ -214,9 +214,9 @@ void inode_close(struct inode *inode)
 void inode_remove(struct inode *inode)
 {
 	ASSERT(inode != NULL);
-	lock_acquire(&inode->inode_lock);
+	//lock_acquire(&inode->inode_lock);
 	inode->removed = true;
-	lock_release(&inode->inode_lock);
+	//lock_release(&inode->inode_lock);
 }
 
 /* Reads SIZE bytes from INODE into BUFFER, starting at position OFFSET.
@@ -291,7 +291,7 @@ off_t inode_write_at(struct inode *inode, const void *buffer_, off_t size,
 	if (inode->deny_write_cnt)
 		return 0;
 
-	lock_acquire(&inode->inode_lock);
+	//lock_acquire(&inode->inode_lock);
 	while (size > 0)
 	{
 		/* Sector to write, starting byte offset within sector. */
@@ -339,7 +339,7 @@ off_t inode_write_at(struct inode *inode, const void *buffer_, off_t size,
 		offset += chunk_size;
 		bytes_written += chunk_size;
 	}
-	lock_release(&inode->inode_lock);
+	//lock_release(&inode->inode_lock);
 
 	free(bounce);
 
@@ -350,9 +350,9 @@ off_t inode_write_at(struct inode *inode, const void *buffer_, off_t size,
    May be called at most once per inode opener. */
 void inode_deny_write(struct inode *inode)
 {
-	lock_acquire(&inode->inode_lock);
+	//lock_acquire(&inode->inode_lock);
 	inode->deny_write_cnt++;
-	lock_release(&inode->inode_lock);
+	//lock_release(&inode->inode_lock);
 	ASSERT(inode->deny_write_cnt <= inode->open_cnt);
 }
 
@@ -363,9 +363,9 @@ void inode_allow_write(struct inode *inode)
 {
 	ASSERT(inode->deny_write_cnt > 0);
 	ASSERT(inode->deny_write_cnt <= inode->open_cnt);
-	lock_acquire(&inode->inode_lock);
+	//lock_acquire(&inode->inode_lock);
 	inode->deny_write_cnt--;
-	lock_release(&inode->inode_lock);
+	//lock_release(&inode->inode_lock);
 }
 
 /* Returns the length, in bytes, of INODE's data. */

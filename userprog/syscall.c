@@ -279,6 +279,36 @@ void syscall_handler(struct intr_frame *f UNUSED)
 		f->R.rax = sys_dup2(oldfd, newfd);
 		break;
 	}
+	
+	void *sys_mmap(void *addr, size_t length, int writable, int fd, off_t offset);
+	void munmap(void *addr);
+
+	case SYS_MMAP:
+	{
+		void *addr = (void *)f->R.rdi;
+		size_t length = (size_t)f->R.rsi;
+		int writable = (int)f->R.rdx;
+		int fd = (int)f->R.r10;
+		off_t offset = (off_t)f->R.r8;
+
+		if(is_kernel_vaddr(addr) || is_kernel_vaddr(addr + length))
+			break;
+
+		f->R.rax = sys_mmap(addr, length, writable, fd, offset);
+		break;
+	}
+
+	case SYS_MUNMAP:
+	{
+		void *addr = (void *)f->R.rdi;
+
+		if(is_kernel_vaddr(addr))
+			break;
+
+		sys_munmap(addr);
+		break;
+	}
+
 	default:
 		sys_exit(-1);
 	}
@@ -412,6 +442,25 @@ int sys_dup2(int oldfd, int newfd)
 	cur->fd_table[newfd] = file_dup2(cur->fd_table[oldfd]);
 
 	return newfd;
+}
+
+void *sys_mmap(void *addr, size_t length, int writable, int fd, off_t offset) {
+	
+
+	if (fd < 0 || fd >= MAX_FD || thread_current()->fd_table[fd] == NULL)
+		return NULL;
+
+	struct file *file = thread_current()->fd_table[fd];
+	if (file == NULL)
+		return NULL;
+	
+	file = file_reopen(file);
+
+	return do_mmap(addr, length, writable, file, offset);
+}
+
+void sys_munmap(void *addr) {
+	return do_munmap(addr);
 }
 
 /* fd 할당 / 해제 헬퍼 함수*/

@@ -61,7 +61,9 @@ struct page {
 
 	/* For mmaped page */
 	struct list* mmaped_list;
-	struct list_elem mmaped_elem; 
+	struct list_elem mmaped_elem;
+	struct file* mmaped_file;
+	struct thread* owner;
 
 	/* Your implementation */
 

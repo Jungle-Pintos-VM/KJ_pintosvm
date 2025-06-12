@@ -38,7 +38,7 @@ void console_file_init(void)
 struct file *
 file_open(struct inode *inode)
 {
-	lock_acquire(&filesys_lock);
+	//lock_acquire(&filesys_lock);
 	struct file *file = calloc(1, sizeof *file);
 	if (inode != NULL && file != NULL)
 	{
@@ -53,7 +53,7 @@ file_open(struct inode *inode)
 		free(file);
 		file = NULL;
 	}
-	lock_release(&filesys_lock);
+	//lock_release(&filesys_lock);
 	return file;
 }
 
@@ -84,9 +84,9 @@ file_duplicate(struct file *file)
 struct file *
 file_dup2(struct file *file)
 {
-	lock_acquire(&filesys_lock);
+	//lock_acquire(&filesys_lock);
 	file->ref_cnt++;
-	lock_release(&filesys_lock);
+	//lock_release(&filesys_lock);
 
 	return file;
 }
@@ -100,7 +100,7 @@ void file_close(struct file *file)
 	if (file == &console_in || file == &console_out)
 		return;
 
-	lock_acquire(&filesys_lock);
+	//lock_acquire(&filesys_lock);
 
 	/* 먼저 참조 카운트만 감소 */
 	file->ref_cnt--;
@@ -113,7 +113,7 @@ void file_close(struct file *file)
 		free(file);
 	}
 
-	lock_release(&filesys_lock);
+	//lock_release(&filesys_lock);
 }
 
 /* Returns the inode encapsulated by FILE. */

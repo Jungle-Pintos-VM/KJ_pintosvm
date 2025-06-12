@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "interrupt.h": "c",
-        "thread.h": "c"
+        "thread.h": "c",
+        "vm.h": "c",
+        "vaddr.h": "c",
+        "mmu.h": "c"
     }
 }
