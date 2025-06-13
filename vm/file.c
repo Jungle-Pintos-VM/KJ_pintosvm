@@ -82,7 +82,7 @@ file_backed_destroy (struct page *page) {
 	// pml4_clear_page(page->owner->pml4, page->va);
 }
 
-// mmap에서 lazt페이지를 로드한다.
+// mmap에서 lazy페이지를 로드한다.
 static bool
 lazy_load_mmap (struct page *page, void *aux) {
 	// printf("mmap lazy load\n");
@@ -185,23 +185,23 @@ do_munmap (void *addr) {
 	free(mapped_pages);
 }
 
-// void
-// do_munmap (void *addr) {
-// 	struct page *page = NULL;
+void
+do_munmap (void *addr) {
+	struct page *page = NULL;
 
-// 	int count = 0;
-// 	while((page = spt_find_page(&thread_current()->spt, addr)) != NULL){
-// 		struct container *aux = (struct container *)page->uninit.aux;
-// 		if(pml4_is_dirty(thread_current()->pml4, page->va)){
-// 				file_write_at(aux->file, page->va, aux->page_read_bytes, aux->ofs);
-// 				pml4_set_dirty(thread_current()->pml4, page->va, 0);
-// 		}
-// 		count++;
-// 		//spt_remove_page(thread_current()->spt, page);
-// 		pml4_clear_page(thread_current()->pml4, addr); 
-// 		addr += PGSIZE;
-// 	}
-// }
+	int count = 0;
+	while((page = spt_find_page(&thread_current()->spt, addr)) != NULL){
+		struct container *aux = (struct container *)page->uninit.aux;
+		if(pml4_is_dirty(thread_current()->pml4, page->va)){
+				file_write_at(aux->file, page->va, aux->page_read_bytes, aux->ofs);
+				pml4_set_dirty(thread_current()->pml4, page->va, 0);
+		}
+		count++;
+		//spt_remove_page(thread_current()->spt, page);
+		pml4_clear_page(thread_current()->pml4, addr); 
+		addr += PGSIZE;
+	}
+}
 
 	// struct list_elem* mapped_page_elem;
 	// struct page* tmp_page;
